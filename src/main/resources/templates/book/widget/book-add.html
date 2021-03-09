@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="content-wrapper" th:fragment="content">
+    <section class="content-header">
+        <h1 th:if=" ${operation == 'add'}">新增书籍</h1>
+        <h1 th:if=" ${operation == 'edit'}">修改书籍信息</h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li th:if=" ${operation == 'add'}"><a href="#">新增书籍</a></li>
+            <li th:if=" ${operation == 'edit'}"><a href="#">修改书籍</a></li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <!-- /.box-header -->
+                    <form id="add_form" th:object="${book}">
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="form-group col-sm-2 col-sm-offset-2">
+                                    <input type="hidden" id="bId" name="bId" th:field="*{bId}">
+                                    <label for="name">书名</label>
+                                    <input type="text" id="name" maxlength="10" class="form-control" th:field="*{name}">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-2 col-sm-offset-2">
+                                    <div class="form-group">
+                                        <label for="authorId">作者</label>
+                                        <select class="form-control select2" id="authorId" name="authorId"
+                                                th:field="*{baId}">
+                                            <option th:each="author:${allAuthor}" th:value="${author.id}"
+                                                    th:text="${author.author}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-2 col-sm-offset-2">
+                                    <div class="form-group">
+                                        <label for="typeId">书籍类型</label>
+                                        <select class="form-control select2" id="typeId" name="typeId"
+                                                th:field="*{btId}">
+                                            <option th:each="type:${allType}" th:value="${type.id}"
+                                                    th:text="${type.type}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-2 col-sm-offset-2">
+                                    <div class="form-group">
+                                        <label for="pressId">出版社</label>
+                                        <select class="form-control select2" id="pressId" name="pressId"
+                                                th:field="*{bpId}">
+                                            <option th:each="press:${allPress}" th:value="${press.id}"
+                                                    th:text="${press.press}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-1 col-sm-offset-2">
+                                    <div class="form-group">
+                                        <label for="price">价格</label>
+                                        <input type="text" id="price" class="form-control"
+                                               th:field="*{price}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-1 col-sm-offset-2">
+                                    <div class="form-group">
+                                        <label for="stock">库存</label>
+                                        <input type="text" id="stock" class="form-control"
+                                               th:field="*{stock}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6 col-sm-offset-2">
+                                    <div class="layui-upload">
+                                        <button type="button" class="layui-btn" id="picture_upload">书籍图片上传</button>
+                                        <!--<input class="layui-upload-file" type="file" accept="" name="files" multiple="">-->
+                                        <blockquote class="layui-elem-quote layui-quote-nm" style="margin-top: 10px;">
+                                            预览图：
+                                            <div class="layui-upload-list" id="book_image" >
+                                                <img th:each="picture:${allPicture}" th:src="@{${picture.path}+${picture.saveName}}">
+                                            </div>
+                                        </blockquote>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6 col-sm-offset-2">
+                                    <label for="content">内容片段</label>
+                                    <textarea class="form-control " rows="5" id="content"
+                                              th:field="*{content}"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="box-footer" style="display: inline-block">
+                                <button type="button" id="btn_submit" class="btn btn-primary center-pill">提交
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </section>
+    <!-- /.modal -->
+    <!-- /.content -->
+
+    <script>
+        $(function () {
+            layui.use('upload', function () {
+                var upload = layui.upload;
+
+                //执行实例
+                var uploadInst = upload.render({
+                    elem: '#picture_upload', //绑定元素
+                    // url: '/upload/', //上传接口
+                    auto: false,
+                    multiple: true,
+                    accept: 'images',
+                    acceptMime: 'image/*',
+                    choose: function (obj) {
+//将每次选择的文件追加到文件队列
+                        var files = obj.pushFile();
+                        obj.preview(function (index, file, result) {
+                            var $div = $("<div>").attr("id","div_"+index).css({
+                                display: "inline-block",
+                                position: "relative"
+                            }).append('<img src="' + result + '" alt="' + file.name + '" class="layui-upload-img">');
+                            // $('#book_image').css({position:"relative"}).append('<img src="'+result+'" alt="'+file.name+'" class="layui-upload-img">');
+                            var $del = $('<i class="layui-icon layui-icon-close-fill"></i>').attr("id","del_image_"+index).css({
+                                position: "absolute",
+                                right: "20px",
+                                top: "10px",
+                                "font-size":"20px",
+                            });
+                            $del.click(function () {
+                                delete files[index];
+                                $("#div_"+index).remove();
+                            });
+                            $div.hover(function () {
+                                $("#del_image_"+index).css({
+                                    "font-size": "30px",
+                                    color: "red",
+                                })
+                            });
+                            $div.mouseleave(function () {
+                                $("#del_image_"+index).css({
+                                    "font-size":"20px",
+                                    color: "black",
+                                })
+                            });
+                            $div.append($del);
+                            $('#book_image').append($div);
+
+//obj.resetFile(index, file, '123.jpg'); //重命名文件名，layui 2.3.0 开始新增
+
+//这里还可以做一些 append 文件列表 DOM 的操作
+
+//obj.upload(index, file); //对上传失败的单个文件重新上传，一般在某个事件中使用
+                        })
+                    }
+                });
+            });
+
+            $('.select2').select2();
+
+            $("#btn_submit").click(function () {     // 提交表单的id
+                var formData = new FormData($("#add_form")[0]);
+                console.info(formData.get("file"));
+                if("undefined" != typeof(formData) && formData != null && formData != "") {
+                    $.ajax({
+                        url: '/book/save',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: formData,
+                        async: false,
+                        cache: false,
+                        contentType: false, //不设置内容类型
+                        processData: false,
+                        success: function (json) {
+                            if (json["data"] > 0) {
+                                layer.msg(json['msg'], {icon: 6, time: 1900});
+                            } else {
+                                layer.msg("添加失败", {icon: 5, time: 1900});
+                            }
+                        },
+                        error: function () {
+                            layer.msg("出错了，添加失败", {icon: 5, time: 1900});
+                        },
+                        clearForm: true
+                    });
+                }
+                return false;   //防止表单自动提交
+            });
+        })
+
+    </script>
+</div>
+

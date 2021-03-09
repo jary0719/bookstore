@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="content-wrapper" th:fragment="content">
+    <section class="content-header">
+        <h1>
+            未发货订单列表
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li><a href="#">未发货订单</a></li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div id="toolbar" class="form-inline">
+                            <input type="text" id="keyword" class="form-control">
+                            <button type="button" class="btn btn-default " id="searchBtn">
+                                <i class="fa fa-search"></i>
+                                搜索
+                            </button>
+
+                        </div>
+                        <table id="dataTable" class="table table-hover table-responsive" style="table-layout: fixed">
+                            <tbody id="tableBody">
+                            <tr hidden id="title">
+                                <th >图片</th>
+                                <th>书名</th>
+                                <th>作者</th>
+                                <th>出版社</th>
+                                <th>单价</th>
+                                <th>数量</th>
+                                <th>小计</th>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </section>
+    <!-- /.modal -->
+    <!-- /.content -->
+
+    <script>
+        $("#modal-default").on("hidden.bs.modal", function () {
+            $("#dataTable").bootstrapTable('refresh');
+        });
+        function deliverOrder(orderNumber) {
+            layer.msg('确定已完成发货吗？', {
+                time: 0 //不自动关闭
+                , btn: ['确认', '取消']
+                , yes: function (index) {
+                    layer.close(index);
+                    $.ajax({
+                        type: 'POST',
+                        contentType: 'application/json',
+                        url: '/order/deliver-end?orderNumber=' + orderNumber,
+                        success: function () {
+                            var order = $("#tableBody").find('tr[name='+ orderNumber +']');
+                            $("#tableBody").find('tr[name='+ orderNumber +']').remove()
+                            console.log(order);
+                            layer.msg('改订单发货完成', {icon: 6});
+                        },
+                        error: function () {
+                            layer.msg('发货异常', {icon: 5});
+                        }
+                    })
+                }
+            });
+        }
+        $.ajax({
+            type: "GET",
+            url: '/order/deliver-data',
+            data: {
+
+                keyword: $("#keyword").val()
+            },
+            success: function (res) {
+                let $table = $("#tableBody");
+                let data = res.data;
+                for (let i = 0; i < data.length; i++) {
+                    let $tr_head = $("<tr>").attr("id", "head_" + data[i].orderNumber);
+                    $tr_head.attr("name", data[i].orderNumber);
+                    $tr_head.append('<td colspan="3"><b>订单编号：</b> ' + data[i].orderNumber + '</td>');
+                    $tr_head.append('<td colspan="4"><b>用户编号：</b> ' + data[i].userId + '</td>');
+                    $tr_head.click(function () {
+                        let $body = $(".tr_body_"+ data[i].orderNumber);
+                        if ($body[0].hidden) {
+                            $body.removeAttr("hidden")
+                            $("#title").removeAttr("hidden")
+                        }else {
+                            $body.attr("hidden","hidden")
+                            let $body1 = $(".body");
+                            let flag = true;
+                            for (let i = 0; i < $body1.length; i++) {
+                                if (!$body1[i].hidden) {
+                                    flag = false;
+                                    console.log(flag)
+                                }
+                            }
+                            if (flag) {
+                                $("#title").attr("hidden","hidden");
+                            }
+                        }
+                    })
+                    $table.append($tr_head);
+                    let books = data[i].books;
+                    let totalPrice = 0;
+                    for (let j = 0; j < books.length; j++) {
+                        let $tr_body = $('<tr hidden class="tr_body_' + data[i].orderNumber + ' body">').attr("id","body_"+ books[j].bId);
+                        $tr_body.attr("name", data[i].orderNumber);
+                        $tr_body.append('<td><img src="' + books[j].bookImages[0].path + books[j].bookImages[0].saveName + '" width="90" height="100"></td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].name + '</td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].bookAuthor.author + '</td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].bookPress.press + '</td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].price + '</td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].quant + '</td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].quant * books[j].price + '</td>');
+                        totalPrice += books[j].quant * books[j].price;
+                        $table.append($tr_body);
+                    }
+                    let $tr_foot = $("<tr>").attr("id", "foot_" + data[i].orderNumber);
+                    $tr_foot.attr("name", data[i].orderNumber);
+                    $tr_foot.append('<td colspan="4" align="right"><b>下单时间： </b>' + data[i].orderTime + '</td>');
+                    $tr_foot.append('<td align="right"><b>订单总价： </b> <span style="color: red">￥' + totalPrice + '</span></td>');
+                    $tr_foot.append('<td style="color: red">' + (data[i].status == 0 ? "未发货" : "已完成") + '</td>');
+                    $tr_foot.append('<button align="right" class="btn btn-success" onclick="deliverOrder(\''+data[i].orderNumber+'\')" >完结订单 </button>');
+                    $table.append($tr_foot);
+                }
+            }
+
+        })
+        /*$(function () {
+            $('#dataTable').bootstrapTable({
+                url: '/order/deliver-data',
+                pagination: true,
+                queryParams: queryParams,
+                sidePagination: 'server',
+                dataField: "data",
+                toolbar: "#toolbar",
+                pageList: [10, 20, 30, 50],
+                paginationPreText: "上一页",
+                paginationNextText: "下一页",
+                toolbarAlign: "right",
+                columns: [
+                    {
+                        title: '全选',
+                        field: 'select',
+                        checkbox: true,
+                        width: 25,
+                        align: 'center',
+                    },
+                    {
+                        field: 'id',
+                        title: 'ID',
+                        width: 20,
+                        visible: false,
+                    },
+
+                    {
+                        field: 'orderNumber',
+                        title: '订单编号',
+                        width: 150,
+                    },
+                    {
+                        field: 'userId',
+                        title: '用户ID',
+                        width: 150,
+                    },
+                    {
+                        field: 'book.name',
+                        title: '书籍名称',
+                        width: 150,
+                    },
+                    {
+                        field: 'book.price',
+                        title: '单价',
+                        width: 100,
+                    },
+                    {
+                        field: 'quantity',
+                        title: '数量',
+                        width: 100,
+                    },
+                    {
+                        title: '总价',
+                        width: 100,
+                        field: function (value, row) {
+                            return row.book.price * row.quantity;
+                        }
+                    },
+                    {
+                        title: '操作',
+                        width: 90,
+                        align: 'center',
+                        formatter: function (value, row) {
+                            return [
+                                '<button type="button" class="btn btn-danger btn-xs" style="margin-left: 5px"',
+                                'onClick=deliverOrder(\'' + row.userId + '\')>',
+                                '发货</button>'
+                            ].join('');
+                        }
+                    },
+                ]
+            });
+
+
+            $("#searchBtn").click(function () {
+                $("#dataTable").bootstrapTable("refresh");
+            });
+
+            function queryParams(params) {
+                return {
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    keyword: $("#keyword").val()
+                }
+            }
+
+
+        })*/
+    </script>
+</div>

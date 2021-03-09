@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.suse.bookstore.mapper.BookMapper">
+    <resultMap id="CompleteResultMap" type="edu.suse.bookstore.domain.Book" extends="BaseResultMap">
+        <collection property="bookType" ofType="edu.suse.bookstore.domain.BookType">
+            <id column="bt_id" property="id"/>
+            <result column="type" property="type"/>
+        </collection>
+        <collection property="bookPress" ofType="edu.suse.bookstore.domain.BookPress">
+            <id column="bp_id" property="id"/>
+            <result column="press" property="press"/>
+        </collection>
+        <collection property="bookAuthor" ofType="edu.suse.bookstore.domain.BookAuthor">
+            <id column="author_id" property="id"/>
+            <result column="author" property="author"/>
+        </collection>
+        <collection property="bookImages" ofType="edu.suse.bookstore.domain.UploadImage" javaType="java.util.List">
+            <id column="img_id" property="id"/>
+            <result column="original_name" property="originalName"/>
+            <result column="save_name" property="saveName"/>
+            <result column="file_size" property="fileSize"/>
+            <result column="file_type" property="fileType"/>
+            <result column="upload_time" property="uploadTime"/>
+            <result column="path" property="path"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectByKeyword" resultMap="CompleteResultMap" parameterType="string">
+        select b.*,
+        bt.id as bt_id,
+        bt.type,
+        bp.id as bp_id,
+        bp.press,
+        ba.id as author_id,
+        ba.author as author
+        from bs_book b
+        left join book_press bp on b.bp_id = bp.id
+        left join book_type bt on b.bt_id = bt.id
+        left join book_author ba on b.ba_id = ba.id
+        <where>
+            (b.name like #{keyword}
+            or ba.author like #{keyword}
+            or b.content like #{keyword}
+            or bp.press like #{keyword})
+            <if test="typeId != null">and bt.id = #{typeId}</if>
+            <if test="pressId != null">and bp.id = #{pressId}</if>
+            <if test="authorId != null">and ba.id = #{authorId}</if>
+        </where>
+    </select>
+
+    <select id="selectByTypeAndKeyword" resultMap="CompleteResultMap">
+        select b.*,
+        bt.id as bt_id,
+        bt.type,
+        bp.id as bp_id,
+        bp.press,
+        ba.id as author_id,
+        ba.author as author,
+        ui.id as img_id,
+        ui.original_name, save_name, file_size, file_type, upload_time, path
+        from bs_book b
+        left join book_press bp on b.bp_id = bp.id
+        left join book_type bt on b.bt_id = bt.id
+        left join book_author ba on b.ba_id = ba.id
+        left join fk_book_img fbi on b.b_id = fbi.book_id
+        left join upload_image ui on fbi.img_id = ui.id
+        <where>
+            b.name like #{keyword}
+            <if test="typeId != null">and b.bt_id = #{typeId}</if>
+        </where>
+    </select>
+
+    <select id="selectBookByIdWithImage" parameterType="java.lang.Integer" resultMap="CompleteResultMap">
+        select b.*,
+        bt.id as bt_id,
+        bt.type,
+        bp.id as bp_id,
+        bp.press,
+        ba.id as author_id,
+        ba.author as author,
+        ui.id as img_id,
+        ui.original_name, save_name, file_size, file_type, upload_time, path
+        from bs_book b
+        left join book_press bp on b.bp_id = bp.id
+        left join book_type bt on b.bt_id = bt.id
+        left join book_author ba on b.ba_id = ba.id
+        left join fk_book_img fbi on b.b_id = fbi.book_id
+        left join upload_image ui on fbi.img_id = ui.id
+        where b.b_id = #{bookId}
+    </select>
+
+    <select id="selectRecommendBook" resultMap="CompleteResultMap">
+        select b.*,
+        bt.id as bt_id,
+        bt.type,
+        bp.id as bp_id,
+        bp.press,
+        ba.id as author_id,
+        ba.author as author,
+        ui.id as img_id,
+        ui.original_name, save_name, file_size, file_type, upload_time, path
+        from bs_book b
+        left join book_press bp on b.bp_id = bp.id
+        left join book_type bt on b.bt_id = bt.id
+        left join book_author ba on b.ba_id = ba.id
+        left join fk_book_img fbi on b.b_id = fbi.book_id
+        left join upload_image ui on fbi.img_id = ui.id
+        order by b.counter limit 12;
+    </select>
+
+</mapper>

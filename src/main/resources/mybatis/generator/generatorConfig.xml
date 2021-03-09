@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+
+
+    <context id="mysqlTables" targetRuntime="MyBatis3">
+
+        <!-- 这个插件给由MBG生成的Java模型对象增加了equals和hashCode方法 -->
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/bookstore?useUnicode=true&amp;characterEncoding=utf8"
+                        userId="root"
+                        password="root">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!--实体类-->
+        <javaModelGenerator targetPackage="edu.suse.bookstore.domain" targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+        <!-- 映射文件 -->
+        <sqlMapGenerator targetPackage="mybatis.mapper" targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+        <!--Dao 接口-->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="edu.suse.bookstore.mapper"
+                             targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+
+        <table tableName="bs_permission" domainObjectName="Permission">
+            <property name="rootClass" value="edu.suse.bookstore.domain.PermissionExt"/>
+            <property name="rootInterface" value="edu.suse.bookstore.mapper.PermissionMapperExt"/>
+        </table>
+        <table tableName="permission_type" domainObjectName="PermissionType"></table>
+        <table tableName="bs_user" domainObjectName="User">
+            <property name="rootClass" value="edu.suse.bookstore.domain.UserExt"/>
+            <property name="rootInterface" value="edu.suse.bookstore.mapper.UserMapperExt"/>
+        </table>
+        <table tableName="bs_role" domainObjectName="Role">
+            <property name="rootClass" value="edu.suse.bookstore.domain.RoleExt"/>
+            <property name="rootInterface" value="edu.suse.bookstore.mapper.RoleMapperExt"/>
+        </table>
+        <table tableName="bs_book" domainObjectName="Book">
+            <property name="rootClass" value="edu.suse.bookstore.domain.BookExt"/>
+            <property name="rootInterface" value="edu.suse.bookstore.mapper.BookMapperExt"/>
+            <generatedKey column="b_id" sqlStatement="SELECT LAST_INSERT_ID()" identity="true"/>
+        </table>
+        <table tableName="book_type" domainObjectName="BookType">
+            <property name="rootClass" value="edu.suse.bookstore.domain.CheckedExtends"/>
+        </table>
+        <table tableName="book_press" domainObjectName="BookPress">
+            <property name="rootClass" value="edu.suse.bookstore.domain.CheckedExtends"/>
+        </table>
+        <table tableName="book_author" domainObjectName="BookAuthor">
+            <property name="rootClass" value="edu.suse.bookstore.domain.CheckedExtends"/>
+        </table>
+        <table tableName="bs_order" domainObjectName="Order">
+            <property name="rootClass" value="edu.suse.bookstore.domain.OrderExt"/>
+            <property name="rootInterface" value="edu.suse.bookstore.mapper.OrderMapperExt"/>
+            <generatedKey column="id" sqlStatement="SELECT LAST_INSERT_ID()" identity="true"/>
+        </table>
+        <table tableName="shop_cart" domainObjectName="ShopCart">
+            <property name="rootClass" value="edu.suse.bookstore.domain.ShopCartExt"/>
+            <property name="rootInterface" value="edu.suse.bookstore.mapper.ShopCartMapperExt"/>
+            <generatedKey column="id" sqlStatement="SELECT LAST_INSERT_ID()" identity="true"/>
+        </table>
+        <table tableName="upload_image" domainObjectName="UploadImage">
+            <property name="rootInterface" value="edu.suse.bookstore.mapper.UploadImageMapperExt"></property>
+            <generatedKey column="id" sqlStatement="SELECT LAST_INSERT_ID()" identity="true"/>
+        </table>
+        <table tableName="fk_book_img" domainObjectName="BookImage"/>
+        <table tableName="fk_user_role" domainObjectName="UserRole"/>
+        <table tableName="fk_role_per" domainObjectName="RolePermission"/>
+        <table tableName="fk_order_book" domainObjectName="OrderBook"/>
+            <!--<property name="rootInterface" value="edu.suse.bookstore.mapper.RolePermissionMapperExt"/>-->
+
+    </context>
+
+
+</generatorConfiguration>

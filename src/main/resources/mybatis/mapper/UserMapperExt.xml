@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.suse.bookstore.mapper.UserMapper">
+    <resultMap id="RoleResultMap" type="edu.suse.bookstore.domain.User" extends="BaseResultMap">
+        <collection property="roles" ofType="edu.suse.bookstore.domain.Role" javaType="java.util.List">
+            <id column="role_id" property="roleId"/>
+            <result column="role" property="role"/>
+            <result column="display_name" property="displayName"/>
+        </collection>
+    </resultMap>
+
+    <select id="findUserWithRole" parameterType="java.lang.String" resultMap="RoleResultMap">
+        select
+          u.*,
+          r.*
+        from bs_user u
+               left join fk_user_role fur on fur.user_id = u.user_id
+               left join bs_role r on r.role_id = fur.role_id
+        WHERE u.username = #{username}
+  </select>
+
+    <select id="selectByKeyword" parameterType="java.lang.String" resultMap="RoleResultMap">
+        SELECT u.*,r.*
+        FROM bs_user u
+            left join fk_user_role fur on fur.user_id = u.user_id
+            left join bs_role r on r.role_id = fur.role_id
+        WHERE (username LIKE #{keyword}
+        OR nick_name LIKE #{keyword}
+        OR phone LIKE #{keyword}
+        OR email LIKE #{keyword})
+        AND `status` != -1
+    </select>
+
+    <delete id="deleteById" parameterType="java.lang.String">
+        update bs_user set status = -1 where user_id = #{userId}
+    </delete>
+
+</mapper>

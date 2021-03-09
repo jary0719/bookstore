@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span></button>
+    <h4 id="mod_tit" class="modal-title">
+        <span aria-hidden="true" th:if=" ${type == 'edit'}">修改用户</span>
+        <span aria-hidden="true" th:if=" ${type == 'add'}">添加新用户</span>
+    </h4>
+</div>
+<form id="userForm" th:action="@{/user/save}" method="post" th:object="${user}">
+    <div class="modal-body">
+        <div class="form-group">
+            <input type="hidden" id="userId" name="userId" th:field="*{userId}">
+            <label for="username">用户名</label>
+            <input type="text" class="form-control" id="username" name="username" th:field="*{username}">
+        </div>
+        <div id="div_pwd">
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" class="form-control" id="password" name="password" th:field="*{password}">
+            </div>
+            <div class="form-group">
+                <label for="password">确认密码</label>
+                <input type="password" class="form-control"  id="passwordRepeat" name="passwordRepeat">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="nickName">昵称</label>
+            <input type="text" class="form-control" id="nickName" name="nickName" th:field="*{nickName}">
+        </div>
+        <div class="form-group">
+            <label for="phone">手机号</label>
+            <input type="text" class="form-control" id="phone" name="phone" th:field="*{phone}">
+        </div>
+        <div class="form-group">
+            <label for="email">邮箱</label>
+            <input type="email" class="form-control" id="email" name="email" th:field="*{email}">
+        </div>
+        <div class="form-group">
+            <label for="email">用户状态</label>
+            <select class="form-control" id="disabled" name="disabled" th:field="*{status}">
+                <option value="0">正常</option>
+                <option value="1">冻结</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-success pull-left" id="btn_edit_pwd" value="1">修改密码</button>
+        <button type="submit" class="btn btn-primary">提交</button>
+    </div>
+</form>
+
+<script>
+    $(function () {
+        var type = '[[${type}]]';
+        if (type == "edit"){
+            $("#div_pwd").attr("hidden","hidden");
+            $("#div_pwd").attr("disabled","disabled");
+        }else if (type == "add") {
+            $("#btn_edit_pwd").attr("style","display:none");
+        }
+
+        jQuery.validator.addMethod("isphone", function (value, element) {
+            var length = value.length;
+            var phone = /^(13[0-9]{9})|(18[0-9]{9})|(14[0-9]{9})|(17[0-9]{9})|(15[0-9]{9})$/;
+            return this.optional(element) || (length == 11 && phone.test(value));
+        }, "请正确填写手机号码");
+        $("#userForm").validate({
+            rules: {
+                username: {
+                    required: true,
+                    minlength: 1,
+                    remote: {
+                        url: "/user/check-username",
+                        type: "get",
+                        data: {
+                            username: function () {
+                                return $("#username").val();
+                            },
+                            userId: function () {
+                                return $("#userId").val();
+                            }
+                        }
+                    }
+                },
+                passwordRepeat: {
+                    required: true,
+                    equalTo: '#password'
+                },
+                phone: {
+                    required: true,
+                    isphone: true
+                },
+                email: {
+                    email: true
+                }
+            },
+            messages: {
+                username: {
+                    required: "请输入用户名",
+                    remote: "用户名已存在"
+                }
+            },
+            highlight: function (element) {
+                $(element).closest('.form-group').addClass('has-error');
+            },
+            success: function (element) {
+                element.closest('.form-group').removeClass('has-error');
+                $(element).closest('.error').remove();
+            },
+            submitHandler: function () {
+                $("#userForm").ajaxSubmit({
+                    success: function (json) {
+                        layer.msg(json["msg"], {icon: 6, time: 900});
+                        $('#modal-default').modal('hide');
+                        $("#dataTable").bootstrapTable("refresh");
+                    },
+                    error: function (json) {
+                        layer.msg('出错了', {icon: 5, time: 900});
+                    },
+                    clearForm: true
+                });
+                return false;
+            }
+        });
+
+        $("#btn_edit_pwd").click(function () {
+            var $btn = $(this);
+            var btn = $btn.val();
+            if (btn == 1) {
+                $("#div_pwd").removeAttr("hidden");
+                $("#div_pwd").removeAttr("disabled");
+                $btn.text("取消密码变更");
+                $btn.val(0);
+            } else if (btn == 0) {
+                $("#div_pwd").attr("hidden", "hidden");
+                $("#div_pwd").attr("disabled", "disabled");
+                $btn.text("修改密码");
+                $btn.val(1);
+            }
+        });
+    })
+</script>

@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{include/customer/head :: content}"></head>
+
+<body>
+    <header th:replace="~{include/customer/header :: content}"></header>
+    <div th:replace="~{${page} :: content}"></div>
+    <footer th:replace="~{include/customer/footer :: content}"></footer>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="content-wrapper" th:fragment="content">
+    <!-- 主体部分 -->
+    <div class="container">
+        <!-- 广告 -->
+        <div class="row">
+            <div class="hidden-md hidden-sm hidden-xs " style="padding-left: 14px; ">
+                <img th:src="@{/img/ad.jpg }" style="width: 99%; "/>
+            </div>
+        </div>
+        <!--页头-->
+        <div class="page-header">
+            <h1>我的订单
+                <small>您留下的足迹</small>
+            </h1>
+        </div>
+        <!--订单信息-->
+        <table class="table">
+            <thead>
+            <tr class="active">
+                <th>图片</th>
+                <th>书名</th>
+                <th>作者</th>
+                <th>出版社</th>
+                <th>单价</th>
+                <th>数量</th>
+                <th>小计</th>
+            </tr>
+            </thead>
+            <tbody  id="tableBody">
+            </tbody>
+        </table>
+    </div>
+    <script>
+        let userId = '[[${session.SPRING_SECURITY_CONTEXT.authentication.principal.user.userId}]]';
+        $.ajax({
+            type: "POST",
+            url: "/cart/order",
+            data: {
+                userId: userId,
+            },
+            success: function (res) {
+                let $table = $("#tableBody");
+                let data = res.data;
+                console.log(data);
+                for (let i = 0; i < data.length; i++) {
+                    let $tr_head = $("<tr>").attr("id", "head_" + data[i].orderNumber);
+                    $tr_head.append('<td colspan="3"><b>订单编号：</b> ' + data[i].orderNumber + '</td>');
+                    $tr_head.append('<td colspan="4"><b>用户编号：</b> ' + data[i].userId + '</td>');
+                    $tr_head.click(function () {
+                        let $body = $(".tr_body_" + data[i].orderNumber);
+                        if ($body[0].hidden) {
+                            $body.removeAttr("hidden")
+                            $("#title").removeAttr("hidden")
+                        } else {
+                            $body.attr("hidden", "hidden")
+                            let $body1 = $(".body");
+                            let flag = true;
+                            for (let i = 0; i < $body1.length; i++) {
+                                if (!$body1[i].hidden) {
+                                    flag = false;
+                                    console.log(flag)
+                                }
+                            }
+                            if (flag) {
+                                $("#title").attr("hidden", "hidden");
+                            }
+                        }
+                    })
+                    $table.append($tr_head);
+                    let books = data[i].books;
+                    let totalPrice = 0;
+                    for (let j = 0; j < books.length; j++) {
+                        let $tr_body = $('<tr hidden class="tr_body_' + data[i].orderNumber + ' body">').attr("id", "body_" + books[j].bId);
+                        $tr_body.append('<td><img src="' + books[j].bookImages[0].path + books[j].bookImages[0].saveName + '" width="90" height="100"></td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].name + '</td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].bookAuthor.author + '</td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].bookPress.press + '</td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].price + '</td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].quant + '</td>');
+                        $tr_body.append('<td style="line-height: 116px">' + books[j].quant * books[j].price + '</td>');
+                        totalPrice += books[j].quant * books[j].price;
+                        $table.append($tr_body);
+                    }
+                    let $tr_foot = $("<tr>").attr("id", "foot_" + data[i].orderNumber);
+                    $tr_foot.append('<td colspan="4" align="right"><b>下单时间： </b>' + data[i].orderTime + '</td>');
+                    $tr_foot.append('<td colspan="2" align="right"><b>订单总价： </b> <span style="color: red">￥' + totalPrice + '</span></td>');
+                    $tr_foot.append('<td align="right" style="color: ' + (data[i].status == 1 ? 'green' : 'red') + '">' + (data[i].status == -1 ? "未付款" : (data[i].status == 0 ? "未发货" : "已收货")) + '</td>');
+                    $table.append($tr_foot);
+                }
+            }
+
+        })
+    </script>
+</div>

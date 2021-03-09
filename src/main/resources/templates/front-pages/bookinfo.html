@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="content-wrapper" th:fragment="content">
+    <!-- 主体部分 -->
+    <!--书籍详情-->
+    <div class="container" style="margin-top: 30px;" th:object="${book}">
+        <input type="text" id="bookId" hidden th:value="${book.bId}">
+        <input type="text" id="userId" hidden
+               th:value="${session.SPRING_SECURITY_CONTEXT.authentication.principal.user.userId}">
+        <div class="col-lg-4 col-md-4" style="margin-left: -30px;">
+            <div class="col-md-12">
+                <img th:src="${book.bookImages.get(0).path + book.bookImages.get(0).saveName}"
+                     style=";border: 1.5px solid darkgray;"/>
+            </div>
+        </div>
+        <div class="col-lg-8 col-md-8" style="margin-left: 30px;">
+            <div class="row">
+                <p style="font-family: 'arial black' ;font-size: 23px;" th:text="${book.name}"></p>
+            </div>
+            <div class="row" style="background: #F5F5F5;padding: 10px;">
+                <div class="row" style="padding: 5px;">
+                    <div class="col-lg-5 col-md-5 col-sm-5">
+                        <span style="font-size:14px;">售&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;价:</span>
+                        <span style="color: red;font-size: 12px;">￥</span>
+                        <span style="color: red;font-size: 23px;" th:text="${book.price}">36.00</span>
+                    </div>
+
+                </div>
+
+            </div>
+            <div id="bookinfo" class="row">
+                <div class="row">
+                    <span style="font-size:14px;">作&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;者:</span>
+                    <span style="font-size:14px;" th:text="${book.bookAuthor.author}"></span>
+                </div>
+                <div class="row">
+                    <span style="font-size:14px;">出&nbsp;&nbsp;版&nbsp;社:</span>
+                    <span style="font-size:14px;" th:text="${book.bookPress.press}"></span>
+                </div>
+                <div id="" class="row">
+                    <span style="font-size:14px;">所属分类:</span>
+                    <a style="font-size:14px;" th:text="${book.bookType.type}">经管/励志>投资理财>理财技巧</a>
+                </div>
+            </div>
+            <div id="bookbuy" class="row">
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                    <button id="add-cart" class="btn btn-success">加入购物车</button>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2">
+                   <!-- <form th:action="@{/cart/pay}" method="post">
+                        <input type="text" name="bookId" hidden id="book-id">
+                        <input type="text" name="userId" hidden id="user-id">
+                        <button type="submit" class="btn btn-danger" id="btn_go_pay">立即购买</button>
+                    </form>-->
+                </div>
+            </div>
+            <div style="padding-top: 10px;">
+                <hr style="border:1px dotted;"/>
+            </div>
+        </div>
+
+    </div>
+    <!--目录-->
+    <div class="container" style="margin-top: 40px;">
+        <div>
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="active">
+                    <a href="#intro">图书简介</a>
+                </li>
+            </ul>
+        </div>
+        <div style="height: 20px;"></div>
+        <div id="intro">
+            <p th:text="${book.content}">
+            </p>
+        </div>
+        <div style="height: 20px;"></div>
+    </div>
+    <script>
+        $(function () {
+            /*let bookId = $("#bookId").val();
+            $("#book-id").val(bookId);
+            let userId = $("#userId").val();
+            $("#user-id").val(userId);
+            console.log( $("#book-id").val()+"  "+ $("#user-id").val() );*/
+            $("#add-cart").click(function () {
+                $.ajax({
+                    url: "/cart/add",
+                    type: "POST",
+                    data: {
+                        userId: $("#userId").val(),
+                        bookId: $("#bookId").val(),
+                    },
+                    success: function () {
+                        layer.msg('成功加入购物车', {icon: 6, time: 900})
+                    }
+                })
+            })
+        })
+    </script>
+</div>

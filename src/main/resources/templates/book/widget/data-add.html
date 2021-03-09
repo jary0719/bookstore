@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span></button>
+    <h4 id="mod_tit" class="modal-title">
+        <span aria-hidden="true" >添加数据</span>
+    </h4>
+</div>
+<form id="userForm" th:action="@{/book/data-save}" method="post">
+    <div class="modal-body">
+        <div class="form-group">
+            <input type="hidden" id="type" name="type" th:value="${type}">
+            <label for="name">
+                <span aria-hidden="true" th:if=" ${type == 'type'}">书籍类别</span>
+                <span aria-hidden="true" th:if=" ${type == 'press'}">出版社</span>
+                <span aria-hidden="true" th:if=" ${type == 'author'}">作者</span>
+            </label>
+            <input type="text" class="form-control" id="name" name="name">
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">关闭</button>
+        <button type="submit" class="btn btn-primary">
+            <label for="name">添加
+            <span aria-hidden="true" th:if=" ${kind == 'type'}">类别</span>
+            <span aria-hidden="true" th:if=" ${kind == 'press'}">出版社</span>
+            <span aria-hidden="true" th:if=" ${kind == 'author'}">作者</span>
+        </label></button>
+    </div>
+</form>
+
+<script>
+    $(function () {
+        $('.select2').select2();
+        $("#userForm").validate({
+            submitHandler: function () {
+                $("#userForm").ajaxSubmit({
+                    success: function (json) {
+                        layer.msg(json["msg"], {icon: 6, time: 900});
+                        $('#modal-default').modal('hide');
+                        $("#dataTable").bootstrapTable("refresh");
+                    },
+                    error: function (json) {
+                        layer.msg('出错了', {icon: 5, time: 900});
+                    },
+                    clearForm: true
+                });
+                return false;
+            }
+        });
+    })
+</script>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="content">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>书店后台管理</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.7 -->
+    <link rel="stylesheet" th:href="@{/adminlte/bower_components/bootstrap/dist/css/bootstrap.min.css}">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" th:href="@{/adminlte/bower_components/font-awesome/css/font-awesome.min.css}">
+    <!-- Ionicons -->
+    <link rel="stylesheet" th:href="@{/adminlte/bower_components/Ionicons/css/ionicons.min.css}">
+    <!-- DataTables -->
+    <link rel="stylesheet" th:href="@{/adminlte/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/adminlte/bower_components/select2/dist/css/select2.min.css}">
+    <!-- Theme style -->
+    <link rel="stylesheet" th:href="@{/adminlte/dist/css/AdminLTE.min.css}">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" th:href="@{/adminlte/dist/css/skins/_all-skins.min.css}">
+    <link rel="stylesheet" th:href="@{/adminlte/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css}">
+    <!-- Bootstrap table -->
+    <link rel="stylesheet" th:href="@{/bootstrap-table/bootstrap-table.min.css}">
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js}"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js}"></script>
+    <![endif]-->
+
+    <!-- Google Font -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <!-- jQuery 3 -->
+    <script th:src="@{/adminlte/bower_components/jquery/dist/jquery.min.js}"></script>
+    <!-- Bootstrap 3.3.7 -->
+    <script th:src="@{/adminlte/bower_components/bootstrap/dist/js/bootstrap.min.js}"></script>
+    <!-- DataTables -->
+    <script th:src="@{/adminlte/bower_components/datatables.net/js/jquery.dataTables.min.js}"></script>
+    <script th:src="@{/adminlte/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js}"></script>
+    <!-- SlimScroll -->
+    <script th:src="@{/adminlte/bower_components/jquery-slimscroll/jquery.slimscroll.min.js}"></script>
+    <!-- FastClick -->
+    <script th:src="@{/adminlte/bower_components/fastclick/lib/fastclick.js}"></script>
+    <!-- AdminLTE App -->
+    <script th:src="@{/adminlte/dist/js/adminlte.min.js}"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script th:src="@{/adminlte/dist/js/demo.js}"></script>
+    <script th:src="@{/adminlte/bower_components/select2/dist/js/select2.full.min.js}"></script>
+    <script th:src="@{/adminlte/bower_components/bootstrap-datepicker/js/bootstrap-datepicker.js}"></script>
+    <script th:src="@{/adminlte/bower_components/bootstrap-datepicker/dist/locales/bootstrap-datepicker.zh-CN.min.js}"></script>
+
+    <!-- Layer -->
+    <script th:src="@{/layer/layer.js}"></script>
+    <script th:src="@{/layui/layui.js}"></script>
+
+    <!-- JQurey -->
+    <script th:src="@{/jqurey/jquery.form.min.js}"></script>
+    <script th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script th:src="@{/jquery-validation/additional-methods.min.js}"></script>
+    <script th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!--<script th:src="@{/bootstrap-table/locale/bootstrap-table-zh-CN.min.js}"></script>-->
+    <!-- Bootstrap Table -->
+    <script th:src="@{/bootstrap-table/bootstrap-table.min.js}"></script>
+    <script th:src="@{/bootstrap-table/locale/bootstrap-table-zh-CN.min.js}"></script>
+
+    <style>
+        .layui-upload-img{width: 192px; height: 200px; margin: 0 10px 10px 0;}
+        .layui-upload-img1{width: 350px; height: 500px; margin: 0 10px 10px 0;}
+    </style>
+</head>
+

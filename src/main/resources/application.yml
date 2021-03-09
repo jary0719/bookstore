@@ -1,0 +1,25 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://127.0.0.1:3306/bookstore?useUnicode=true&characterEncoding=utf8
+  mvc:
+    date-format: yyyy-MM-dd
+  jackson:
+    date-format: yyyy-MM-dd hh:mm:ss
+
+
+logging:
+  level:
+    edu:
+      suse:
+        bookstore:
+          mapper: Debug
+
+mybatis:
+  mapper-locations: classpath:/mybatis/mapper/*.xml
+server:
+  port: 8888
+
+

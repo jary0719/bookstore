@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<aside class="main-sidebar" th:fragment="content">
+    <!-- sidebar: style can be found in sidebar.less -->
+    <section class="sidebar">
+
+        <!-- sidebar menu: : style can be found in sidebar.less -->
+        <ul class="sidebar-menu" data-widget="tree" sec:authorize="hasAnyRole('ADMIN','CLERK')">
+            <li class="treeview">
+                <a th:href="@{/system-index}">
+                    <i class="fa fa-home"></i>
+                    <span>主页</span>
+                    <span class="pull-right-container">
+                    </span>
+                </a>
+            </li>
+            <li class="treeview"  sec:authorize="hasRole('ADMIN')">
+                <a href="#">
+                    <i class="fa fa-users"></i>
+                    <span>用户角色</span>
+                    <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+                </a>
+                <ul class="treeview-menu" style="display: block">
+                    <li><a th:href="@{/admin/user}"><i class="fa fa-user"></i> <span>用户管理</span></a></li>
+                    <li><a th:href="@{/admin/clerk}"><i class="fa fa-user-secret "></i> <span>店员管理</span></a></li>
+                    <li><a th:href="@{/admin/role}"><i class="fa fa-tags"></i> <span>角色管理</span></a></li>
+                </ul>
+            </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-user"></i>
+                    <span>书籍管理</span>
+                    <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+                </a>
+                <ul class="treeview-menu" style="display: block">
+                    <li><a th:href="@{/book}"><i class="fa fa-book"></i>书籍列表</a></li>
+                    <li><a th:href="@{/book/add}"><i class="fa fa-plus"></i>添加书籍</a></li>
+                    <li><a th:href="@{/book/type}"><i class="fa fa-cubes"></i>类别列表</a></li>
+                    <li><a th:href="@{/book/press}"><i class="fa fa-cubes"></i>出版社列表</a></li>
+                    <li><a th:href="@{/book/author}"><i class="fa fa-cubes"></i>作者列表</a></li>
+                </ul>
+            </li>
+
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-users"></i>
+                    <span>订单管理</span>
+                    <span class="pull-right-container">
+              <i class="fa fa-angle-left pull-right"></i>
+            </span>
+                </a>
+                <ul class="treeview-menu" style="display: block">
+                    <li><a th:href="@{/order}"><i class="fa fa-reorder"></i> <span>订单列表</span></a></li>
+                    <li><a th:href="@{/order/deliver}"><i class="fa fa-envelope-open"></i> <span>待发货订单</span></a></li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+    <!-- /.sidebar -->
+</aside>

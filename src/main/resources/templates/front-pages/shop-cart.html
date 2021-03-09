@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="content-wrapper" th:fragment="content">
+    <!-- 主体部分 -->
+    <div class="container">
+        <!-- 广告 -->
+        <div class="row">
+            <div class="hidden-md hidden-sm hidden-xs " style="padding-left: 14px; ">
+                <img th:src="@{/img/ad.jpg} " style="width: 99%; "/>
+            </div>
+        </div>
+        <!--主体信息-->
+        <table class="table">
+            <thead>
+            <tr class="active">
+                <td>
+                    <input type="checkbox" name="btSelectAll" id="allSelect" checked="true">全选
+                </td>
+                <th colspan="4">书籍</th>
+                <th>单价</th>
+                <th>数量</th>
+                <th>小计</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody id="bagItems">
+            <tr th:each="cart : ${cartBooks}" class="cart_tr" th:id="tr_+${cart.cartId}" text="123">
+                <td width="80 px">
+                    <input type="text" name="id" hidden th:value="${cart.cartId}">
+                    <input type="checkbox" name="btSelectItem" id="btSelectItem" class="btSelectItem">
+                </td>
+                <td><img th:src="${cart.book.bookImages.get(0).path + cart.book.bookImages.get(0).saveName}"></td>
+                <td th:text="${cart.book.name}"></td>
+                <td th:text="${cart.book.bookAuthor.author}">谢成</td>
+                <td th:text="${cart.book.bookPress.press}">机械工业出版社</td>
+                <td th:text="${cart.book.price}">44</td>
+                <td>
+                    <input type="number" class="number" th:value="${cart.quantity}" min="1" th:max="${cart.book.stock}"
+                           style="width: 50px;"/>
+                </td>
+                <td th:text="${cart.book.price * cart.quantity}"></td>
+                <td>
+                    <button class="btn btn-danger btn-del">删除</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="text-right">商品总金额:&yen; <span class="price" id="total-price">88</span> </div>
+        <div class="row text-right" style="padding-right: 20px;margin-top: 10px;">
+            <form th:action="@{/cart/to-pay}" method="post">
+                <a id="btn_clear" class="btn btn-danger" style="margin-right: 10px;">清空购物车</a>
+                <input type="text" name="cartIds" hidden id="cartIds">
+                <button type="submit" class="btn btn-success" id="btn_go_pay">去结算</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            let userId = '[[${session.SPRING_SECURITY_CONTEXT.authentication.principal.user.userId}]]';
+            let flag = true;
+
+            sessionStorage.setItem('car',location.href)
+            startTotal();
+            getCartId();
+            console.log($("#cartIds").val())
+
+            function startTotal() {
+                $('#bagItems').find("input[type=checkbox]").prop("checked", true);
+                let a = $('#bagItems .number').parent().next();
+                let total = 0;
+                for (let i = 0; i < a.length; i++) {
+                    total += Number(a[i].innerText)
+                }
+                $('#total-price').text(total + '.00')
+            }
+
+            $(".btn-del").click(function () {
+                let cartId = $(this).parent("td").parent("tr").find("input:eq(0)").val();
+                layer.msg('确定删除吗？', {
+                    time: 0 //不自动关闭
+                    , btn: ['删除', '取消']
+                    , yes: function (index) {
+                        layer.close(index);
+                        $.ajax({
+                            type: 'DELETE',
+                            contentType: 'application/json',
+                            url: '/cart?cartId=' + cartId,
+                            success: function () {
+                                $("#tr_" + cartId).remove();
+                                layer.msg('删除成功', {icon: 6, time: 900});
+                                changeTotal()
+                            },
+                            error: function () {
+                                layer.msg('删除失败', {icon: 5, time: 900});
+                            }
+                        })
+                    }
+                });
+            });
+
+            $(".number").change(function () {
+                let max = Number($(this).attr("max"));
+                let number = Number($(this).val());
+                let id = $(this).parent().parent().find('input[name="id"]').val();
+                console.log(id);
+                if (number > max) {
+                    layer.msg('选择数量不可超过库存，请重新输入', {icon: 5, time: 1200});
+                    $(this).val(max);
+                } else if (number < 1) {
+                    layer.msg('选择数量不可小于1，请重新输入', {icon: 5, time: 1200});
+                    $(this).val(1);
+                } else {
+                    $.ajax({
+                        url: "/cart/quantity",
+                        type: "POST",
+                        data: {
+                            "cartId": id,
+                            "quantity": number
+                        },
+                    })
+                }
+            });
+
+            $("#bagItems .number").change(function () {
+                let number = $(this).val();
+                let price = $(this).parent("td").parent("tr").find("td:eq(5)").text();
+                $(this).parent("td").parent("tr").find("td:eq(7)").text(number * price)
+                // $('#allSelect').prop('checked',true);
+                changeTotal()
+
+            });
+
+            $("#allSelect").on('click', function () {
+                flag = !flag;
+
+                if (flag) {
+                    $('#bagItems').find("input[type=checkbox]").prop("checked", true);
+                    let a = $('#bagItems .number').parent().next();
+                    let total = 0;
+                    for (let i = 0; i < a.length; i++) {
+                        total += Number(a[i].innerText)
+                    }
+                    $('#total-price').text(total + '.00')
+                } else {
+
+                    $('#bagItems').find("input[type=checkbox]").prop("checked", false);
+                    $('#total-price').text('0.00')
+                }
+                getCartId()
+            })
+            $("#bagItems").on('click', 'input[type=checkbox]', function () {
+
+                if ($(this).prop('checked') == false) {
+                    $('#allSelect').prop('checked', false);
+                    let total = Number($('#total-price').text()) - Number($(this).parent().parent().find("td:eq(7)").text())
+                    $('#total-price').text(total)
+                } else {
+                    $('#allSelect').prop('checked', true);
+                    let total = Number($('#total-price').text()) + Number($(this).parent().parent().find("td:eq(7)").text())
+                    $('#total-price').text(total)
+                }
+                getCartId();
+            })
+
+            function changeTotal() {
+
+                let a = $('#bagItems .number').parent().next();
+                let total = 0;
+                for (let i = 0; i < a.length; i++) {
+                    total += Number(a[i].innerText)
+                }
+                $('#total-price').text(total + '.00')
+            }
+
+            function getCartId() {
+                let cartIds = [];
+                let checked = $("#bagItems").find("input[type=checkbox]:checked").parent("td").find("input:eq(0)");
+                for (let i = 0; i < checked.length; i++) {
+                    cartIds.push(checked[i].attributes['value'].value);
+                }
+                console.log(cartIds)
+                $("#cartIds").val(cartIds);
+            }
+
+            $("#btn_clear").click(function () {
+                layer.msg('确定清空购物车吗？', {
+                    time: 0 //不自动关闭
+                    , btn: ['确认', '取消']
+                    , yes: function (index) {
+                        layer.close(index);
+                        $.ajax({
+                            url: "/cart/clear",
+                            type: "POST",
+                            data: {
+                                userId: userId
+                            },
+                            success: function (res) {
+                                layer.msg("已清空购物车", {icon: 6, time: 800});
+                                $(".table").remove();
+                                changeTotal();
+                            }
+                        })
+                    }
+                });
+            });
+        });
+
+
+    </script>
+</div>

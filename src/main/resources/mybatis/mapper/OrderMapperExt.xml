@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.suse.bookstore.mapper.OrderMapper">
+    <resultMap id="detailedResultMap" type="edu.suse.bookstore.domain.Order" extends="BaseResultMap">
+        <collection property="books" ofType="edu.suse.bookstore.domain.Book" javaType="java.util.List">
+            <id column="b_id" jdbcType="INTEGER" property="bId"/>
+            <result column="name" jdbcType="VARCHAR" property="name"/>
+            <result column="price" jdbcType="REAL" property="price"/>
+            <result column="stock" jdbcType="INTEGER" property="stock"/>
+            <result column="quant" javaType="INTEGER" property="quant"/>
+            <collection property="bookPress" ofType="edu.suse.bookstore.domain.BookPress">
+                <id column="bp_id" property="id"/>
+                <result column="press" property="press"/>
+            </collection>
+            <collection property="bookAuthor" ofType="edu.suse.bookstore.domain.BookAuthor">
+                <id column="author_id" property="id"/>
+                <result column="author" property="author"/>
+            </collection>
+            <collection property="bookImages" ofType="edu.suse.bookstore.domain.UploadImage" javaType="java.util.List">
+                <id column="img_id" property="id"/>
+                <result column="original_name" property="originalName"/>
+                <result column="save_name" property="saveName"/>
+                <result column="file_size" property="fileSize"/>
+                <result column="file_type" property="fileType"/>
+                <result column="upload_time" property="uploadTime"/>
+                <result column="path" property="path"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="selectOrderWithImageByUserId" resultMap="detailedResultMap" parameterType="string">
+       select bo.user_id, bo.order_number,bo.order_time, bo.status,
+        bb.name,bb.price,bb.stock,fob.quant,bb.b_id,
+        ba.id as author_id,ba.author,
+        bp.id as bp_id,bp.press,
+        ui.id as img_id,
+        ui.original_name, ui.save_name, ui.file_size, ui.file_type, ui.upload_time, ui.path
+        from bs_order bo
+        left join fk_order_book fob on bo.order_number = fob.order_number
+        left join bs_book bb on fob.book_id = bb.b_id
+        left join book_author ba on bb.ba_id = ba.id
+        left join book_press bp on bb.bp_id = bp.id
+        left join fk_book_img fbi on bb.b_id = fbi.book_id
+        left join upload_image ui on fbi.img_id = ui.id
+        where bo.user_id = #{userId};
+  </select>
+
+    <select id="selectOrderByKeyword" resultMap="detailedResultMap">
+        select bo.user_id, bo.order_number,bo.order_time, bo.status,
+        bb.name,bb.price,bb.stock,fob.quant,bb.b_id,
+        ba.id as author_id,ba.author,
+        bp.id as bp_id,bp.press,
+        ui.id as img_id,
+        ui.original_name, ui.save_name, ui.file_size, ui.file_type, ui.upload_time, ui.path
+        from bs_order bo
+        left join fk_order_book fob on bo.order_number = fob.order_number
+        left join bs_book bb on fob.book_id = bb.b_id
+        left join book_author ba on bb.ba_id = ba.id
+        left join book_press bp on bb.bp_id = bp.id
+        left join fk_book_img fbi on bb.b_id = fbi.book_id
+        left join upload_image ui on fbi.img_id = ui.id
+        <where>
+            bb.name like #{keyword}
+            <if test="userId != null">and bo.user_id = #{userId}</if>
+            <if test="orderTime != null">and bo.order_time = #{orderTime}</if>
+        </where>
+    </select>
+</mapper>

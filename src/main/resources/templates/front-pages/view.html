@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="content-wrapper" th:fragment="content">
+    <div class="container">
+        <div class="row" id="forYou">
+            <div class="col-md-2 col-sm-4 col-xs-6" align="center" th:each="book : ${bookList}">
+                <a th:href="@{/page/detail(bookId=${book.bId})}"><img class="pic" th:src="${book.bookImages.get(0).path + book.bookImages.get(0).saveName}" />
+                <p class="price" th:text="${book.price}"></p>
+                <p class="bookname" th:text="${book.name}">世界最美</a></p>
+            </div>
+        </div>
+    </div>
+
+</div>

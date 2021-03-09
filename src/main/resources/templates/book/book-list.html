@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="content-wrapper" th:fragment="content">
+    <section class="content-header">
+        <h1>
+            书籍列表
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li><a href="#">书籍列表</a></li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <a type="button" class="btn btn-success" th:href="@{/book/add}">
+                            添加书籍
+                        </a>
+                        <div id="toolbar" class="form-inline">
+                            <label for="typeId">类别</label>
+                            <select class="form-control select2" id="typeId" name="typeId" style="width: 100px;">
+                                <option value="">请选择</option>
+                                <option th:each="type:${allType}" th:value="${type.id}"
+                                        th:text="${type.type}"></option>
+                            </select>
+                            <label for="pressId">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;出版社</label>
+                            <select class="form-control select2" id="pressId" name="pressId" style="width: 180px;">
+                                <option value="">请选择</option>
+                                <option th:each="press:${allPress}" th:value="${press.id}"
+                                        th:text="${press.press}"></option>
+                            </select>
+                            <label for="authorId">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;作者</label>
+                            <select class="form-control select2" id="authorId" name="authorId" style="width: 100px;">
+                                <option value="">请选择</option>
+                                <option th:each="author:${allAuthor}" th:value="${author.id}"
+                                        th:text="${author.author}"></option>
+                            </select>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <input type="text" id="keyword" class="form-control">
+                            <button type="button" class="btn btn-default    " id="searchBtn">
+                                <i class="fa fa-search"></i>
+                                搜索
+                            </button>
+
+                        </div>
+                        <table id="dataTable" class="table table-hover table-responsive" style="table-layout: fixed">
+                        </table>
+
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </section>
+    <!-- /.modal -->
+    <!-- /.content -->
+
+    <script>
+        function removeBook(id) {
+            layer.msg('确定删除吗？', {
+                time: 0 //不自动关闭
+                , btn: ['删除', '取消']
+                , yes: function (index) {
+                    layer.close(index);
+                    $.ajax({
+                        type: 'DELETE',
+                        contentType: 'application/json',
+                        url: '/book?id=' + id,
+                        success: function (json) {
+                            if (json["success"]) {
+                                $("#dataTable").bootstrapTable('remove', {field: "id", values: id});
+                            }
+                            layer.msg('删除成功', {icon: 6});
+                        },
+                        error: function () {
+                            layer.msg('删除失败,改书籍已被加以购物车', {icon: 5});
+                        }
+                    })
+                }
+            });
+        }
+
+        $("#modal-default").on("hidden.bs.modal", function () {
+            $("#dataTable").bootstrapTable('refresh');
+        });
+
+        $(function () {
+            $('#dataTable').bootstrapTable({
+                url: '/book/list',
+                pagination: true,
+                queryParams: queryParams,
+                sidePagination: 'server',
+                dataField: "data",
+                toolbar: "#toolbar",
+                pageList: [10, 20, 30, 50],
+                paginationPreText: "上一页",
+                paginationNextText: "下一页",
+                toolbarAlign: "right",
+                columns: [
+                    {
+                        title: '全选',
+                        field: 'select',
+                        checkbox: true,
+                        width: 25,
+                        align: 'center',
+                    },
+                    {
+                        field: 'bId',
+                        title: 'ID',
+                        width: 20,
+                        visible: false,
+                    },
+                    {
+                        title: '操作',
+                        width: 90,
+                        align: 'center',
+                        formatter: function (value, row) {
+                            return [
+                                '<a type="button" class="btn btn-primary btn-xs" style="margin-left: 5px"',
+                                ' data-id=' + row.bId,
+                                ' href="/book/book-edit?id=' + row.bId + '"',
+                                '>',
+                                '<i class="fa fa-edit"></i></a>',
+                                '<button type="button" class="btn btn-danger btn-xs" style="margin-left: 5px"',
+                                'onClick=removeBook(\'' + row.bId + '\')>',
+                                '<i class="fa fa-remove"></i></button>'
+                            ].join('');
+                        }
+                    },
+                    {
+                        field: 'name',
+                        title: '书名',
+                        width: 150,
+                        align: "center",
+                    },
+                    {
+                        field: 'bookAuthor.author',
+                        title: '作者',
+                        width: 150,
+                        align: "center",
+                    },
+                    {
+                        field: 'bookType.type',
+                        title: '类别',
+                        width: 50,
+                        align: "center",
+                    },
+                    {
+                        field: 'bookPress.press',
+                        title: '出版社',
+                        width: 150,
+                        align: "center",
+                    },
+                    {
+                        field: 'price',
+                        title: '价格',
+                        width: 80,
+                    },
+                    {
+                        field: 'stock',
+                        title: '库存',
+                        width: 80,
+                    },
+                    {
+                        title: '用户状态',
+                        width: 90,
+                        align: 'center',
+                        formatter: function (value, row) {
+                            return [
+                                '<span>' + row.status == 1 ? "售罄" : row.status == -1 ? "下架" : "正常" + '</span>'
+                            ]
+                        }
+                    },
+                ]
+            });
+
+
+            $("#searchBtn").click(function () {
+                $("#dataTable").bootstrapTable("refresh");
+            });
+
+            $("#typeId").change(function () {
+                var val = $(this).val();
+                if (val != "") {
+                    $("#typeId option:first-child").text("取消选择")
+                }else {
+                    $("#typeId option:first-child").text("请选择")
+                }
+                $("#dataTable").bootstrapTable("refresh");
+            });
+            $("#pressId").change(function () {
+                var val = $(this).val();
+                if (val != "") {
+                    $("#pressId option:first-child").text("取消选择")
+                }else {
+                    $("#pressId option:first-child").text("请选择")
+                }
+                $("#dataTable").bootstrapTable("refresh");
+            });
+            $("#authorId").change(function () {
+                var val = $(this).val();
+                if (val != "") {
+                    $("#authorId option:first-child").text("取消选择")
+                }else {
+                    $("#authorId option:first-child").text("请选择")
+                }
+                $("#dataTable").bootstrapTable("refresh");
+            });
+
+            
+            function queryParams(params) {
+                return {
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    keyword: $("#keyword").val(),
+                    typeId: $("#typeId").val(),
+                    pressId: $("#pressId").val(),
+                    authorId: $("#authorId").val()
+                }
+            }
+
+
+        })
+    </script>
+</div>

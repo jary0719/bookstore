@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="content-wrapper" th:fragment="content">
+    <section class="content-header">
+        <h1>
+            用户管理
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li><a href="#">用户管理</a></li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <button type="button" class="btn btn-success" data-toggle="modal"
+                                data-target="#modal-default" th:href="@{/admin/user-add}">
+                            添加用户
+                        </button>
+                        <div id="toolbar" class="form-inline">
+                            <input type="text" id="keyword" class="form-control">
+                            <button type="button" class="btn btn-default " id="searchBtn">
+                                <i class="fa fa-search"></i>
+                                搜索
+                            </button>
+
+                        </div>
+                        <table id="dataTable" class="table table-hover table-responsive" style="table-layout: fixed">
+                        </table>
+
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </section>
+    <!-- /.modal -->
+    <!-- /.content -->
+
+    <script>
+        function removeUser(id) {
+            layer.msg('确定删除吗？', {
+                time: 0 //不自动关闭
+                , btn: ['删除', '取消']
+                , yes: function (index) {
+                    layer.close(index);
+                    $.ajax({
+                        type: 'DELETE',
+                        contentType: 'application/json',
+                        url: '/admin/user?id=' + id,
+                        success: function () {
+                            $("#dataTable").bootstrapTable("remove", {field: 'id', values: id});
+                            layer.msg('删除成功', {icon: 6});
+                        },
+                        error: function () {
+                            layer.msg('删除失败', {icon: 5});
+                        }
+                    })
+                }
+            });
+        }
+
+        $("#modal-default").on("hidden.bs.modal", function () {
+            $("#dataTable").bootstrapTable('refresh');
+        });
+
+        $(function () {
+            $('#dataTable').bootstrapTable({
+                url: '/admin/user-list',
+                pagination: true,
+                queryParams: queryParams,
+                sidePagination: 'server',
+                dataField: "data",
+                toolbar: "#toolbar",
+                pageList: [10, 20, 30, 50],
+                paginationPreText: "上一页",
+                paginationNextText: "下一页",
+                toolbarAlign: "right",
+                columns: [
+                    {
+                        title: '全选',
+                        field: 'select',
+                        checkbox: true,
+                        width: 25,
+                        align: 'center',
+                    },
+                    {
+                        field: 'userId',
+                        title: 'ID',
+                        width: 20,
+                        visible: false,
+                    },
+                    {
+                        title: '操作',
+                        width: 90,
+                        align: 'center',
+                        formatter: function (value, row) {
+                            return [
+                                '<button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#modal-default" style="margin-left: 5px"',
+                                ' data-id=' + row.userId,
+                                ' href="/user/user-edit?id=' + row.userId + '"',
+                                '>',
+                                '<i class="fa fa-edit"></i></button>',
+                                '<button type="button" class="btn btn-danger btn-xs" style="margin-left: 5px"',
+                                'onClick=removeUser(\'' + row.userId + '\')>',
+                                '<i class="fa fa-remove"></i></button>'
+                            ].join('');
+                        }
+                    },
+                    {
+                        field: 'username',
+                        title: '用户账号',
+                        width: 150,
+                    },
+                    {
+                        field: 'nickName',
+                        title: '昵称',
+                        width: 150,
+                    },
+                    {
+                        field: 'phone',
+                        title: '手机号',
+                        width: 150,
+                    },
+                    {
+                        field: 'email',
+                        title: '邮箱',
+                        width: 200,
+                    },
+                    {
+                        title: '用户状态',
+                        width: 90,
+                        align: 'center',
+                        formatter: function (value, row) {
+                            return [
+                                '<span>' + row.status == 1 ? "冻结" : "正常" + '</span>'
+                            ]
+                        }
+                    },
+                ]
+            });
+
+
+            $("#searchBtn").click(function () {
+                $("#dataTable").bootstrapTable("refresh");
+            });
+
+            function queryParams(params) {
+                return {
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    keyword: $("#keyword").val()
+                }
+            }
+
+
+        })
+    </script>
+</div>

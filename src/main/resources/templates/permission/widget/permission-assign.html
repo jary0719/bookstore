@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">分配角色</h4>
+    <input type="text" class="hidden" id="roleId" th:value="${roleId}">
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-sm-6" th:each="entry:${permissionMap}">
+            <div class="box box-warning" >
+                <div class="box-header with-border">
+                    <h3 class="box-title" th:text="${entry.key}"></h3>
+
+                </div>
+                <div class="box-body" style="">
+                    <div class="form-group">
+                        <div class="checkbox" th:each="permission : ${entry.value}">
+                            <label>
+                                <input type="checkbox" class="check-box" th:checked="${permission.checked}"
+                                       th:value="${permission.id}">
+                                [[${permission.displayName}]]
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--
+                    <div class="col-md-6">
+                        <div class="box box-warning">
+                            <div class="box-header with-border">
+                                <h3 class="box-title">角色管理</h3>
+                            </div>
+                            <div class="box-body">
+                                <div class="layui-form-checkbox"><span>写作</span></div>
+                                <div class="layui-form-checkbox"><span>阅读</span></div>
+                                <div class="layui-form-checkbox"><span>发呆</span></div>
+                            </div>
+                        </div>
+                    </div>
+        -->
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">关闭</button>
+</div>
+<script>
+    $(function () {
+        var roleId = $("#roleId").val();
+        $(".check-box").change(function () {
+            var $this = $(this);
+            var id = $this.val();
+            if ($this[0].checked) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/permission/assigned',
+                    data: {
+                        roleId: roleId,
+                        permissionId: id,
+                    },
+                    success: function () {
+                        layer.msg("添加权限成功", {icon: 6, time: 900});
+                    },
+                    error: function () {
+                        layer.msg("添加失败", {icon: 5, time: 900})
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: '/permission/unassign',
+                    data: {
+                        roleId: roleId,
+                        permissionId: id,
+                    },
+                    success: function () {
+                        layer.msg("移除权限成功", {icon: 6, time: 900});
+                    },
+                    error: function () {
+                        layer.msg("移除失败", {icon: 5, time: 900})
+                    }
+                });
+            }
+        });
+    })
+</script>
+<!--
+var roomIds = $("#roomId option").map(function(){
+return $(this).val();
+}).get().join(",")
+-->

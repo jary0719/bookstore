@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="content-wrapper" th:fragment="content">
+    <section class="content-header">
+        <h1>
+            角色管理
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> 首页</a></li>
+            <li><a href="#">角色管理</a></li>
+        </ol>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="box box-primary">
+                    <!-- /.box-header -->
+                    <div class="box-body">
+                        <div id="toolbar" class="form-inline">
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                    data-target="#modal-default" th:href="@{/admin/role-add}">
+                                添加角色
+                            </button>
+                        </div>
+                        <table id="dataTable" class="table table-hover table-responsive" style="table-layout: fixed">
+                        </table>
+
+                    </div>
+                    <!-- /.box-body -->
+                </div>
+                <!-- /.box -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </section>
+    <!-- /.modal -->
+    <!-- /.content -->
+
+    <script>
+        function removeRole(id) {
+            layer.msg('确定删除吗？', {
+                time: 0 //不自动关闭
+                , btn: ['删除', '取消']
+                , yes: function (index) {
+                    layer.close(index);
+                    $.ajax({
+                        type: 'DELETE',
+                        contentType: 'application/json',
+                        url: '/admin/role?id=' + id,
+                        success: function () {
+                            $("#dataTable").bootstrapTable("remove", {field: 'id', values: id});
+                            layer.msg('删除成功', {icon: 6});
+                        },
+                        error: function () {
+                            layer.msg('删除失败', {icon: 5});
+                        }
+                    })
+                }
+            });
+        }
+
+        $(function () {
+            $('#dataTable').bootstrapTable({
+                url: '/admin/role-list',
+                pagination: true,
+                pageList : [10, 20, 30, 50],
+                paginationPreText : "上一页",
+                paginationNextText : "下一页",
+                queryParams: queryParams,
+                sidePagination: 'server',
+                dataField: "data",
+                toolbar: "#toolbar",
+                toolbarAlign: "right",
+                columns: [
+                    {
+                        field: 'roleId',
+                        title: 'ID',
+                        width: 20,
+                        visible: false,
+                        align: 'center',
+                    },
+                    {
+                        title: '操作',
+                        width: 90,
+                        align: 'center',
+                        formatter: function (value, row) {
+                            return [
+                                '<button type="button" class="btn btn-danger btn-xs" style="margin-left: 5px"',
+                                'onClick=removeRole(\'' + row.roleId + '\')>',
+                                '删除</button>'
+                            ].join('');
+                        }
+                    },
+                    {
+                        field: 'role',
+                        title: '角色',
+                        width: 200,
+                        align: 'center',
+                    },
+                    {
+                        field: 'displayName',
+                        title: '角色名',
+                        width: 300,
+                        align: 'center',
+                    },
+                    /*{
+                        field: 'disabled',
+                        title: '是否禁用',
+                        width: 300,
+                        align: 'center',
+                    },*/
+                ]
+            });
+
+
+            $("#searchBtn").click(function () {
+                $("#dataTable").bootstrapTable("refresh");
+            });
+
+            function queryParams(params) {
+                return {
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    keyword: $("#keyword").val()
+                }
+            }
+
+
+        })
+    </script>
+</div>
