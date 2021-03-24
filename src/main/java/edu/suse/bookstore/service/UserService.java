@@ -2,13 +2,13 @@ package edu.suse.bookstore.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import edu.suse.bookstore.common.PagableResponse;
+import edu.suse.bookstore.common.PageRequest;
+import edu.suse.bookstore.common.utils.IDGenerator;
 import edu.suse.bookstore.domain.*;
 import edu.suse.bookstore.mapper.RoleMapper;
 import edu.suse.bookstore.mapper.UserMapper;
 import edu.suse.bookstore.mapper.UserRoleMapper;
-import net.suncaper.project_api.common.PagableResponse;
-import net.suncaper.project_api.common.PageRequest;
-import net.suncaper.project_api.common.utils.IDGenerator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

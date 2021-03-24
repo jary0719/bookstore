@@ -2,10 +2,10 @@ package edu.suse.bookstore.service;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import edu.suse.bookstore.common.PagableResponse;
+import edu.suse.bookstore.common.PageRequest;
 import edu.suse.bookstore.domain.*;
 import edu.suse.bookstore.mapper.*;
-import net.suncaper.project_api.common.PagableResponse;
-import net.suncaper.project_api.common.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;

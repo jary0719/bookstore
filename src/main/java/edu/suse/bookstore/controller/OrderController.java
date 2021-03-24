@@ -1,7 +1,7 @@
 package edu.suse.bookstore.controller;
 
 import edu.suse.bookstore.service.OrderService;
-import net.suncaper.project_api.common.utils.JsonMap;
+import edu.suse.bookstore.common.utils.JsonMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;

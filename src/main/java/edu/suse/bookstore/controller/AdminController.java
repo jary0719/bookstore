@@ -1,12 +1,12 @@
 package edu.suse.bookstore.controller;
 
+import edu.suse.bookstore.common.PagableResponse;
+import edu.suse.bookstore.common.PageRequest;
+import edu.suse.bookstore.common.utils.JsonMap;
 import edu.suse.bookstore.domain.Role;
 import edu.suse.bookstore.domain.User;
 import edu.suse.bookstore.service.RoleService;
 import edu.suse.bookstore.service.UserService;
-import net.suncaper.project_api.common.PagableResponse;
-import net.suncaper.project_api.common.PageRequest;
-import net.suncaper.project_api.common.utils.JsonMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
